@@ -88,9 +88,54 @@ const turnController = (function(){
     return {setSymbolDisplay};
 })();
 
-// const gameController = (function(){
+const gameController = (function(){
+    function checkResult()
+    {
+        let rowWiseArray = [];
+        let columnWiseArray = [];
+        let columnString, rowString, crossArray1,crossArray2;
+        let crossString1, crossString2;
+        crossArray1 = [];
+        crossArray2= [];
+        let winner = null;
+        for (let i=1; i <= 3; i++){
+            rowWiseArray = [];
+            columnWiseArray = [];
+            for (let j=1; j<=3; j++){
+                columnWiseArray.push(board.getSymbol(i,j));
+                rowWiseArray.push(board.getSymbol(j,i));
+                if(i===j){
+                    crossArray1.push(board.getSymbol(j,i));
+                }
+                if(i+j===4){
+                    crossArray2.push(board.getSymbol(i,j))
+                }
+            }
+            columnString = columnWiseArray.join();
+            rowString = rowWiseArray.join();
+            if(rowString === "X,X,X" || columnString === "X,X,X"){
+                winner = "X";
+                return winner;
+            }
+            else if(rowString === "O,O,O" || columnString === "O,O,O"){
+                winner = "O";
+                return winner;
+            }
 
-// })();
+        }
+        crossString1 = crossArray1.join();
+        crossString2 = crossArray2.join();
+        if(crossString1 === "X,X,X" || crossString2 === "X,X,X"){
+            winner = "X";
+        }
+        else if(crossString1 === "O,O,O" || crossString2 === "O,O,O"){
+            winner = "O";
+        }
+        return winner;
+    }
+
+    return {checkResult};
+})();
 
 const grid = (function(){
     const finalGrid = document.querySelector(".grid-container");
@@ -106,7 +151,11 @@ const grid = (function(){
         const cells = document.querySelectorAll(".cell");
         cells.forEach((cell)=>{
             cell.addEventListener("click",(event)=>{
-            turnController.setSymbolDisplay(event.target);
+                if(event.target.textContent === ""){
+                    turnController.setSymbolDisplay(event.target)
+                    if (gameController.checkResult() !== null){
+                        console.log(`winner found. ${gameController.checkResult()}`);
+                } }
             });
         });
     }
