@@ -150,13 +150,17 @@ const gameController = (function(){
         }
         return winner;
     }
+    function fetchIsGameOver(){
+        return isGameOver;
+    }
 
-    return {checkResult,isGameOver};
+    return {checkResult,fetchIsGameOver};
 })();
 
 const grid = (function(){
     const finalGrid = document.querySelector(".grid-container");
     const turnIndicator = document.querySelector(".turn-indicator");
+    let result;
     function drawGrid(){
         for (let i = 1; i<=3 ; i++)
         for (let j = 1; j<=3; j++)
@@ -169,18 +173,19 @@ const grid = (function(){
         const cells = document.querySelectorAll(".cell");
         cells.forEach((cell)=>{
             cell.addEventListener("click",(event)=>{
-                if(event.target.textContent === "" && gameController.isGameOver === false){
-                    turnController.setSymbolDisplay(event.target)
-                    if (gameController.checkResult() !== null){
+                if(event.target.textContent === "" && gameController.fetchIsGameOver() === false){
+                    turnController.setSymbolDisplay(event.target);
+                    result = gameController.checkResult();
+                    if (result !== null){
                         turnIndicator.classList.toggle("winner");
                         turnIndicator.style.color = "rgb(5, 212, 5)";
-                        if(gameController.checkResult() === "X"){
+                        if(result === "X"){
                             turnIndicator.textContent = `${gameInitialization.playerXName} has won`;
                         }
-                        else if(gameController.checkResult() === "O"){
+                        else if(result === "O"){
                             turnIndicator.textContent = `${gameInitialization.playerOName} has won`;
                         }
-                        else if(gameController.checkResult() === "tie"){
+                        else if(result === "tie"){
                             turnIndicator.textContent = "Game is a Tie";
                         }
                 } }
