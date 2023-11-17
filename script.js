@@ -36,6 +36,7 @@ const gameInitialization = (function(){
     const player2Display = document.querySelector("#player2");
     const turnIndicator = document.querySelector(".turn-indicator");
 
+
     startButton.addEventListener("click",()=>{
         startModal.showModal();
     });
@@ -47,6 +48,10 @@ const gameInitialization = (function(){
     let playerOName = playerO.name;
     startGameButton.addEventListener("click",(event)=>{
         event.preventDefault();
+        startButton.textContent = "Restart";
+        startButton.addEventListener("click", ()=>{
+            location.reload();
+        });
         playerX.name = inputPlayer1Name.value;
         playerO.name = inputPlayer2Name.value;
         player1Display.textContent = inputPlayer1Name.value;
@@ -89,9 +94,11 @@ const turnController = (function(){
 })();
 
 const gameController = (function(){
+    let isGameOver = false;
     function checkResult()
     {
         let rowWiseArray = [];
+        let isAllFilled = true;
         let columnWiseArray = [];
         let columnString, rowString, crossArray1,crossArray2;
         let crossString1, crossString2;
@@ -110,35 +117,46 @@ const gameController = (function(){
                 if(i+j===4){
                     crossArray2.push(board.getSymbol(i,j))
                 }
+                if(board.getSymbol(i,j) === null){
+                    isAllFilled = false;
+                }
             }
             columnString = columnWiseArray.join();
             rowString = rowWiseArray.join();
             if(rowString === "X,X,X" || columnString === "X,X,X"){
                 winner = "X";
+                isGameOver = true;
                 return winner;
             }
             else if(rowString === "O,O,O" || columnString === "O,O,O"){
                 winner = "O";
+                isGameOver = true;
                 return winner;
             }
-
         }
         crossString1 = crossArray1.join();
         crossString2 = crossArray2.join();
         if(crossString1 === "X,X,X" || crossString2 === "X,X,X"){
             winner = "X";
+            isGameOver = true;
         }
         else if(crossString1 === "O,O,O" || crossString2 === "O,O,O"){
             winner = "O";
+            isGameOver = true;
+        }
+        else if(isAllFilled === true){
+            winner = "tie";
+            isGameOver = true;
         }
         return winner;
     }
 
-    return {checkResult};
+    return {checkResult,isGameOver};
 })();
 
 const grid = (function(){
     const finalGrid = document.querySelector(".grid-container");
+    const turnIndicator = document.querySelector(".turn-indicator");
     function drawGrid(){
         for (let i = 1; i<=3 ; i++)
         for (let j = 1; j<=3; j++)
@@ -151,10 +169,20 @@ const grid = (function(){
         const cells = document.querySelectorAll(".cell");
         cells.forEach((cell)=>{
             cell.addEventListener("click",(event)=>{
-                if(event.target.textContent === ""){
+                if(event.target.textContent === "" && gameController.isGameOver === false){
                     turnController.setSymbolDisplay(event.target)
                     if (gameController.checkResult() !== null){
-                        console.log(`winner found. ${gameController.checkResult()}`);
+                        turnIndicator.classList.toggle("winner");
+                        turnIndicator.style.color = "rgb(5, 212, 5)";
+                        if(gameController.checkResult() === "X"){
+                            turnIndicator.textContent = `${gameInitialization.playerXName} has won`;
+                        }
+                        else if(gameController.checkResult() === "O"){
+                            turnIndicator.textContent = `${gameInitialization.playerOName} has won`;
+                        }
+                        else if(gameController.checkResult() === "tie"){
+                            turnIndicator.textContent = "Game is a Tie";
+                        }
                 } }
             });
         });
